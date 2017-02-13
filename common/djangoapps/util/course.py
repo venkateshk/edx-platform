@@ -4,25 +4,29 @@ Utility methods related to course
 import logging
 from django.conf import settings
 
-from opaque_keys.edx.keys import CourseKey
-
 log = logging.getLogger(__name__)
 
 
-def get_lms_link_for_about_page(course_key):
+def get_link_for_about_page(course_overview):
     """
-    Returns the url to the course about page.
+    Arguments:
+        course_overview: A course metadata object.
+
+    Returns the course sharing url, this can be one of course's social sharing url, marketing url, or
+    lms course about url.
     """
-    assert isinstance(course_key, CourseKey)
-
-    if settings.FEATURES.get('ENABLE_MKTG_SITE'):
-        # Root will be "https://www.edx.org". The complete URL will still not be exactly correct,
-        # but redirects exist from www.edx.org to get to the Drupal course about page URL.
-        about_base = settings.MKTG_URLS['ROOT']
-    else:
-        about_base = settings.LMS_ROOT_URL
-
-    return u"{about_base_url}/courses/{course_key}/about".format(
-        about_base_url=about_base,
-        course_key=course_key.to_deprecated_string()
+    is_social_sharing_enabled = (
+        hasattr(settings, 'SOCIAL_SHARING_SETTINGS') and
+        settings.SOCIAL_SHARING_SETTINGS.get('CUSTOM_COURSE_URLS')
     )
+    if is_social_sharing_enabled and course_overview.social_sharing_url:
+        course_about_url = course_overview.social_sharing_url
+    elif settings.FEATURES.get('ENABLE_MKTG_SITE') and course_overview.marketing_url:
+        course_about_url = course_overview.marketing_url
+    else:
+        course_about_url = u'{about_base_url}/courses/{course_key}/about'.format(
+            about_base_url=settings.LMS_ROOT_URL,
+            course_key=unicode(course_overview.id),
+        )
+
+    return course_about_url

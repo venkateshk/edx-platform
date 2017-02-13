@@ -22,6 +22,7 @@ from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locations import Location
 
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from .component import (
     ADVANCED_COMPONENT_TYPES,
 )
@@ -74,7 +75,7 @@ from student.auth import has_course_author_access, has_studio_write_access, has_
 from student.roles import (
     CourseInstructorRole, CourseStaffRole, CourseCreatorRole, GlobalStaff, UserBasedRole
 )
-from util.course import get_lms_link_for_about_page
+from util.course import get_link_for_about_page
 from util.date_utils import get_default_time_display
 from util.json_request import JsonResponse, JsonResponseBadRequest, expect_json
 from util.milestones_helpers import (
@@ -985,11 +986,12 @@ def settings_handler(request, course_key_string):
                 settings.FEATURES.get('EDITABLE_SHORT_DESCRIPTION', True)
             )
             self_paced_enabled = SelfPacedConfiguration.current().enabled
+            course_overview = CourseOverview.get_from_id(course_key)
 
             settings_context = {
                 'context_course': course_module,
                 'course_locator': course_key,
-                'lms_link_for_about_page': get_lms_link_for_about_page(course_key),
+                'lms_link_for_about_page': get_link_for_about_page(course_overview),
                 'course_image_url': course_image_url(course_module, 'course_image'),
                 'banner_image_url': course_image_url(course_module, 'banner_image'),
                 'video_thumbnail_image_url': course_image_url(course_module, 'video_thumbnail_image'),
