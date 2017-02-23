@@ -3,7 +3,7 @@ from datetime import datetime
 import logging
 import urllib
 
-from django.conf import settings
+from django.contrib.staticfiles.finders import find
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.utils import http
 from oauth2_provider.models import (
@@ -276,14 +276,25 @@ def get_redirect_to(request):
     # Also make sure that it is not redirecting to a static asset and redirected page is web page
     # not a static file. As allowing assets to be pointed to by "next" allows 3rd party sites to
     # get information about a user on edx.org. In any such case drop the parameter.
-    if redirect_to and (not http.is_safe_url(redirect_to)
-                        or settings.STATIC_URL in redirect_to
-                        or 'text/html' not in header_accept):
-        log.warning(
-            u'Unsafe redirect parameter detected after login page: %(redirect_to)r',
-            {"redirect_to": redirect_to}
-        )
-        redirect_to = None
+    if redirect_to:
+        if not http.is_safe_url(redirect_to):
+            log.warning(
+                u'Unsafe redirect parameter detected after login page: %(redirect_to)r',
+                {"redirect_to": redirect_to}
+            )
+            redirect_to = None
+        if find(redirect_to):
+            log.warning(
+                u'Redirect to static content detected after login page: %(redirect_to)r',
+                {"redirect_to": redirect_to}
+            )
+            redirect_to = None
+        if 'text/html' not in header_accept:
+            log.warning(
+                u'Redirect to non html content detected after login page: %(redirect_to)r',
+                {"redirect_to": redirect_to}
+            )
+            redirect_to = None
 
     return redirect_to
 
