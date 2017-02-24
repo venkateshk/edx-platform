@@ -24,7 +24,6 @@ class CreditEligibilityTest(CourseTestCase):
         self.course_details_url = reverse_course_url('settings_handler', unicode(self.course.id))
 
     @mock.patch.dict("django.conf.settings.FEATURES", {'ENABLE_CREDIT_ELIGIBILITY': False})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_course_details_with_disabled_setting(self):
         """
         Test that user don't see credit eligibility requirements in response
@@ -36,7 +35,6 @@ class CreditEligibilityTest(CourseTestCase):
         self.assertNotContains(response, "Steps required to earn course credit")
 
     @mock.patch.dict("django.conf.settings.FEATURES", {'ENABLE_CREDIT_ELIGIBILITY': True})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_course_details_with_enabled_setting(self):
         """
         Test that credit eligibility requirements are present in

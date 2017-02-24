@@ -221,13 +221,19 @@ class TestGetCourseRuns(CatalogIntegrationMixin, TestCase):
         self.assertFalse(mock_get_edx_api_data.called)
         self.assertEqual(data, [])
 
-    def test_service_user_missing(self, mock_get_edx_api_data):
+    @mock.patch(UTILS_MODULE + '.log.error')
+    def test_service_user_missing(self, mock_log_error, mock_get_edx_api_data):
         """
         Verify that no errors occur when the catalog service user is missing.
         """
-        self.create_catalog_integration(service_username='nonexistent-user')
+        catalog_integration = self.create_catalog_integration(service_username='nonexistent-user')
 
         data = get_catalog_course_runs()
+        mock_log_error.any_call(
+            '[%s] user: %s does not exist.',
+            catalog_integration.internal_api_url,
+            catalog_integration.service_username,
+        )
         self.assertFalse(mock_get_edx_api_data.called)
         self.assertEqual(data, [])
 

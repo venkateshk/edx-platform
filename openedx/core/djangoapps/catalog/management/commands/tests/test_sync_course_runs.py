@@ -47,37 +47,43 @@ class TestSyncCourseRunsCommand(ModuleStoreTestCase):
 
         call_command('sync_course_runs')
         updated_marketing_url = self.get_course_overview_marketing_url(self.course.id)
+        # Assert that the Marketing URL has changed.
         self.assertNotEqual(earlier_marketing_url, updated_marketing_url)
         self.assertEqual(updated_marketing_url, 'test_marketing_url')
 
-    def test_course_overview_does_not_exist(self, mock_catalog_course_runs):
+    @mock.patch(COMMAND_MODULE + '.log.info')
+    def test_course_overview_does_not_exist(self, mock_log_info, mock_catalog_course_runs):
         """
         Verify no error in case if course run record does not have associated record in course overview.
         """
-        mock_catalog_course_runs.return_value = [self.catalog_course_run, CourseRunFactory()]
+        nonexistent_course_run = CourseRunFactory()
+        mock_catalog_course_runs.return_value = [self.catalog_course_run, nonexistent_course_run]
 
         call_command('sync_course_runs')
+
+        mock_log_info.assert_any_call(
+            '[sync_course_runs] course overview record is not found for course run: %s',
+            nonexistent_course_run['key'],
+        )
         updated_marketing_url = self.get_course_overview_marketing_url(self.course.id)
         self.assertEqual(updated_marketing_url, 'test_marketing_url')
 
-    @ddt.data(
-        (2, 's '),
-        (1, ' '),
-        (0, 's '),
-    )
-    @ddt.unpack
     @mock.patch(COMMAND_MODULE + '.log.info')
-    def test_command_logs(self, course_runs_count, course_word_end, mock_log_info, mock_catalog_course_runs):
+    def test_starting_and_ending_logs(self, mock_log_info, mock_catalog_course_runs):
         """
-        Verify logging on execution of the command.
+        Verify logging at start and end of the command.
         """
-        mock_catalog_course_runs.return_value = [CourseRunFactory() for _ in xrange(course_runs_count)]
+        mock_catalog_course_runs.return_value = [self.catalog_course_run, CourseRunFactory(), CourseRunFactory()]
 
         call_command('sync_course_runs')
-        self.assertEqual(mock_log_info.call_count, 2)
-        mock_log_info.assert_any_call('Fetching course runs from catalog service.')
+        # Assert the logs at the start of the command.
+        mock_log_info.assert_any_call('[sync_course_runs] Fetching course runs from catalog service.')
+        # Assert the log metrics at it's completion.
         mock_log_info.assert_any_call(
-            'Ended, %d course%sretrieved from catalog service.',
-            course_runs_count,
-            course_word_end,
+            ('[sync_course_runs] course runs retrieved: %d, course runs found in course overview: %d,'
+             ' course runs not found in course overview: %d, course overviews metadata updated: %d,'),
+            3,
+            1,
+            2,
+            1,
         )

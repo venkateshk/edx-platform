@@ -37,7 +37,7 @@ class CatalogIntegration(ConfigurationModel):
 
     page_size = models.PositiveIntegerField(
         verbose_name=_('Page Size'),
-        default=20,
+        default=100,
         help_text=_(
             'Maximum number of records in paginated response of a single request to catalog service.'
         )

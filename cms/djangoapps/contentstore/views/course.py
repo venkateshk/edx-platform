@@ -986,12 +986,11 @@ def settings_handler(request, course_key_string):
                 settings.FEATURES.get('EDITABLE_SHORT_DESCRIPTION', True)
             )
             self_paced_enabled = SelfPacedConfiguration.current().enabled
-            course_overview = CourseOverview.get_from_id(course_key)
 
             settings_context = {
                 'context_course': course_module,
                 'course_locator': course_key,
-                'lms_link_for_about_page': get_link_for_about_page(course_overview),
+                'lms_link_for_about_page': get_link_for_about_page(course_module),
                 'course_image_url': course_image_url(course_module, 'course_image'),
                 'banner_image_url': course_image_url(course_module, 'banner_image'),
                 'video_thumbnail_image_url': course_image_url(course_module, 'video_thumbnail_image'),

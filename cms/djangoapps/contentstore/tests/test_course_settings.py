@@ -168,7 +168,6 @@ class CourseDetailsViewTest(CourseTestCase, MilestonesTestCaseMixin):
             self.fail(field + " included in encoding but missing from details at " + context)
 
     @mock.patch.dict("django.conf.settings.FEATURES", {'ENABLE_PREREQUISITE_COURSES': True})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_pre_requisite_course_list_present(self):
         settings_details_url = get_url(self.course.id)
         response = self.client.get_html(settings_details_url)
@@ -221,7 +220,6 @@ class CourseDetailsViewTest(CourseTestCase, MilestonesTestCaseMixin):
         (True, True, True),
     )
     @override_settings(MKTG_URLS={'ROOT': 'dummy-root'})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_visibility_of_entrance_exam_section(self, feature_flags):
         """
         Tests entrance exam section is available if ENTRANCE_EXAMS feature is enabled no matter any other
@@ -239,7 +237,6 @@ class CourseDetailsViewTest(CourseTestCase, MilestonesTestCaseMixin):
             )
 
     @override_settings(MKTG_URLS={'ROOT': 'dummy-root'})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_marketing_site_fetch(self):
         settings_details_url = get_url(self.course.id)
 
@@ -368,7 +365,6 @@ class CourseDetailsViewTest(CourseTestCase, MilestonesTestCaseMixin):
         self.assertTrue(course.entrance_exam_enabled)
         self.assertEquals(course.entrance_exam_minimum_score_pct, .5)
 
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_editable_short_description_fetch(self):
         settings_details_url = get_url(self.course.id)
 
@@ -376,7 +372,6 @@ class CourseDetailsViewTest(CourseTestCase, MilestonesTestCaseMixin):
             response = self.client.get_html(settings_details_url)
             self.assertNotContains(response, "Course Short Description")
 
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_regular_site_fetch(self):
         settings_details_url = get_url(self.course.id)
 
@@ -1155,7 +1150,6 @@ id=\"course-enrollment-end-time\" value=\"\" placeholder=\"HH:MM\" autocomplete=
             self.assertNotContains(response, element)
 
     @mock.patch.dict("django.conf.settings.FEATURES", {'ENABLE_MKTG_SITE': False})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_course_details_with_disabled_setting_global_staff(self):
         """
         Test that user enrollment end date is editable in response.
@@ -1166,7 +1160,6 @@ id=\"course-enrollment-end-time\" value=\"\" placeholder=\"HH:MM\" autocomplete=
         self._verify_editable(self._get_course_details_response(True))
 
     @mock.patch.dict("django.conf.settings.FEATURES", {'ENABLE_MKTG_SITE': False})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     def test_course_details_with_disabled_setting_non_global_staff(self):
         """
         Test that user enrollment end date is editable in response.
@@ -1177,7 +1170,6 @@ id=\"course-enrollment-end-time\" value=\"\" placeholder=\"HH:MM\" autocomplete=
         self._verify_editable(self._get_course_details_response(False))
 
     @mock.patch.dict("django.conf.settings.FEATURES", {'ENABLE_MKTG_SITE': True})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     @override_settings(MKTG_URLS={'ROOT': 'dummy-root'})
     def test_course_details_with_enabled_setting_global_staff(self):
         """
@@ -1189,7 +1181,6 @@ id=\"course-enrollment-end-time\" value=\"\" placeholder=\"HH:MM\" autocomplete=
         self._verify_editable(self._get_course_details_response(True))
 
     @mock.patch.dict("django.conf.settings.FEATURES", {'ENABLE_MKTG_SITE': True})
-    @mock.patch('contentstore.views.course.get_link_for_about_page', mock.Mock(return_value=None))
     @override_settings(MKTG_URLS={'ROOT': 'dummy-root'})
     def test_course_details_with_enabled_setting_non_global_staff(self):
         """

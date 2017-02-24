@@ -1,5 +1,6 @@
 """Helper functions for working with the catalog service."""
 import copy
+import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -9,6 +10,8 @@ from openedx.core.djangoapps.catalog.models import CatalogIntegration
 from openedx.core.lib.edx_api_utils import get_edx_api_data
 from openedx.core.lib.token_utils import JwtBuilder
 
+
+log = logging.getLogger(__name__)
 
 User = get_user_model()  # pylint: disable=invalid-name
 
@@ -150,6 +153,11 @@ def get_catalog_course_runs():
         try:
             user = User.objects.get(username=catalog_integration.service_username)
         except User.DoesNotExist:
+            log.error(
+                '[%s] user: %s does not exist.',
+                catalog_integration.internal_api_url,
+                catalog_integration.service_username,
+            )
             return course_runs
 
         api = create_catalog_api_client(user, catalog_integration)
