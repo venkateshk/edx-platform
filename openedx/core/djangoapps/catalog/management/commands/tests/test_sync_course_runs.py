@@ -40,7 +40,7 @@ class TestSyncCourseRunsCommand(ModuleStoreTestCase):
 
     def test_marketing_url_on_sync(self, mock_catalog_course_runs):
         """
-        Verify course overview's marketing url after the execution of management command.
+        Verify the updated marketing url on execution of the management command.
         """
         mock_catalog_course_runs.return_value = [self.catalog_course_run]
         earlier_marketing_url = self.get_course_overview_marketing_url(self.course.id)
@@ -54,7 +54,7 @@ class TestSyncCourseRunsCommand(ModuleStoreTestCase):
     @mock.patch(COMMAND_MODULE + '.log.info')
     def test_course_overview_does_not_exist(self, mock_log_info, mock_catalog_course_runs):
         """
-        Verify no error in case if course run record does not have associated record in course overview.
+        Verify no error in case if a course run is not found in course overview.
         """
         nonexistent_course_run = CourseRunFactory()
         mock_catalog_course_runs.return_value = [self.catalog_course_run, nonexistent_course_run]

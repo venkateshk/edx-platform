@@ -22,7 +22,6 @@ from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from opaque_keys.edx.locations import Location
 
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from .component import (
     ADVANCED_COMPONENT_TYPES,
 )

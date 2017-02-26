@@ -128,5 +128,4 @@ class TestCourseSharingLinks(ModuleStoreTestCase):
             enable_mktg_site=True,
             use_overview=False,
         )
-        # Assert that the course sharing url is social sharing url set on course descriptor.
         self.assertEqual(actual_course_sharing_link, expected_course_sharing_link)
