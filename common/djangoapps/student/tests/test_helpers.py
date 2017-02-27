@@ -23,21 +23,26 @@ class TestLoginHelper(TestCase):
         self.request = RequestFactory()
 
     @ddt.data(
-        ("https://www.amazon.com", "text/html"),
-        ("favicon.ico", "image/*"),
-        ("https://www.test.com/test.jpg", "image/*"),
-        (settings.STATIC_URL + "dummy.png", "image/*"),
+        ("https://www.amazon.com", "text/html",
+         "Unsafe redirect parameter detected after login page: u'https://www.amazon.com'"),
+        ("favicon.ico", "image/*",
+         "Redirect to non html content detected after login page: u'favicon.ico'"),
+        ("https://www.test.com/test.jpg", "image/*",
+         "Unsafe redirect parameter detected after login page: u'https://www.test.com/test.jpg'"),
+        (settings.STATIC_URL + "dummy.png", "image/*",
+         "Redirect to non html content detected after login page: u'" + settings.STATIC_URL + "dummy.png" + "'"),
+        ("test.png", "text/html",
+         "Redirect to image detected after login page: u'test.png'"),
     )
     @ddt.unpack
-    def test_unsafe_next(self, unsafe_url, http_accept):
+    def test_unsafe_next(self, unsafe_url, http_accept, expected_log):
         """ Test unsafe next parameter """
         with LogCapture(LOGGER_NAME, level=logging.WARNING) as logger:
             req = self.request.get(reverse("login") + "?next={url}".format(url=unsafe_url))
             req.META["HTTP_ACCEPT"] = http_accept  # pylint: disable=no-member
             get_next_url_for_login_page(req)
             logger.check(
-                (LOGGER_NAME, "WARNING",
-                 u"Unsafe redirect parameter detected after login page: u'{url}'".format(url=unsafe_url))
+                (LOGGER_NAME, "WARNING", expected_log)
             )
 
     def test_safe_next(self):
