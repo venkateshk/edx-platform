@@ -185,7 +185,7 @@ function(HTML5Video, HTML5HLSVideo, Resizer, HLS, _) {
                 eventToBeTriggered = 'loadedmetadata';
             }
             player = state.videoEl = state.videoPlayer.player.videoEl;
-            player[0].addEventListener(eventToBeTriggered, state.videoPlayer.onLoadMetadataHtml5, false);
+            player[0].addEventListener(eventToBeTriggered, _.once(state.videoPlayer.onLoadMetadataHtml5), false);
         } else {
             youTubeId = state.youtubeId();
 
