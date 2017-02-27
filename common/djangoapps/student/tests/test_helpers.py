@@ -33,6 +33,8 @@ class TestLoginHelper(TestCase):
          "Redirect to non html content detected after login page: u'" + settings.STATIC_URL + "dummy.png" + "'"),
         ("test.png", "text/html",
          "Redirect to image detected after login page: u'test.png'"),
+        (settings.STATIC_URL + "dummy.png", "text/html",
+         "Redirect to image detected after login page: u'" + settings.STATIC_URL + "dummy.png" + "'"),
     )
     @ddt.unpack
     def test_unsafe_next(self, unsafe_url, http_accept, expected_log):
